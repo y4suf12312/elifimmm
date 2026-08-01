@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>🎂 İyi ki Doğdun Elif</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        html, body {
+            min-height: 100vh;
+            min-height: 100dvh;
+            background: radial-gradient(circle at 30% 30%, #1a0b1f, #0b040e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding: 12px;
+            touch-action: manipulation;
+        }
+
+        /* yıldız & parıltı katmanı */
+        #starfield {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 12px 2px rgba(255, 80, 200, 0.6);
+            animation: twinkle var(--duration) infinite alternate ease-in-out;
+            opacity: 0.3;
+            width: var(--size);
+            height: var(--size);
+            top: var(--top);
+            left: var(--left);
+        }
+        @keyframes twinkle {
+            0% { opacity: 0.15; transform: scale(0.8); }
+            100% { opacity: 0.9; transform: scale(1.3); }
+        }
+
+        /* giriş ekranı */
+        #entry-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 30;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at 40% 30%, #1f0a24, #09030b);
+            backdrop-filter: blur(2px);
+            transition: opacity 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            padding: 20px;
+            text-align: center;
+            touch-action: manipulation;
+        }
+        #entry-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .entry-title {
+            font-size: clamp(2.8rem, 14vw, 6rem);
+            font-weight: 700;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #ff69b4, #ffb6d9, #ff85c8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px #ff3b9f, 0 0 70px #ff3b9f;
+            animation: neonPulse 2s infinite alternate;
+            margin-bottom: 10px;
+        }
+        .entry-sub {
+            color: rgba(255, 220, 240, 0.9);
+            font-size: clamp(1rem, 3.5vw, 1.6rem);
+            letter-spacing: 2px;
+            font-weight: 300;
+            backdrop-filter: blur(4px);
+            padding: 8px 20px;
+            border-radius: 60px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 150, 200, 0.2);
+            margin-bottom: 30px;
+        }
+        .entry-btn {
+            background: rgba(255, 255, 255, 0.02);
+            border: 2px solid #ff3b9f;
+            color: white;
+            font-size: clamp(1.8rem, 5.5vw, 3.2rem);
+            padding: 16px 50px;
+            border-radius: 100px;
+            backdrop-filter: blur(12px);
+            background: rgba(255, 20, 120, 0.1);
+            box-shadow: 0 0 30px #ff3b9f55, 0 0 80px #ff3b9f33;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-weight: 600;
+            letter-spacing: 6px;
+            text-shadow: 0 0 20px #ff3b9f;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        .entry-btn:active {
+            transform: scale(0.95);
+            background: rgba(255, 50, 150, 0.3);
+            box-shadow: 0 0 60px #ff3b9faa, 0 0 120px #ff3b9f66;
+        }
+
+        /* ana sayfa */
+        #main-screen {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 1280px;
+            margin: 0 auto;
+            opacity: 0;
+            transition: opacity 1.4s ease;
+            padding: 8px;
+            pointer-events: none;
+        }
+        #main-screen.fade-in {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .glass-card {
+            background: rgba(30, 10, 35, 0.45);
+            backdrop-filter: blur(18px) saturate(180%);
+            -webkit-backdrop-filter: blur(18px) saturate(180%);
+            border-radius: 40px;
+            padding: 24px 20px;
+            border: 1px solid rgba(255, 200, 230, 0.15);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255, 80, 180, 0.1);
+            display: grid;
+            grid-template-columns: 1fr 1.2fr 1fr;
+            gap: 16px;
+            align-items: center;
+            transition: box-shadow 0.3s;
+        }
+        @media (max-width: 860px) {
+            .glass-card {
+                grid-template-columns: 1fr;
+                gap: 24px;
+                border-radius: 32px;
+                padding: 24px 16px;
+            }
+        }
+
+        /* fotoğraf stil */
+        .photo-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .photo {
+            width: 100%;
+            max-width: 280px;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            border-radius: 50%;
+            box-shadow: 0 0 30px #ff3b9f88, 0 0 60px #ff3b9f44;
+            transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1), box-shadow 0.3s;
+            border: 2px solid rgba(255, 180, 220, 0.4);
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        .photo:active {
+            transform: scale(0.96);
+        }
+        @media (max-width: 860px) {
+            .photo { max-width: 200px; }
+        }
+        @media (max-width: 480px) {
+            .photo { max-width: 160px; }
+        }
+
+        /* orta bölüm */
+        .center-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 4px 0;
+        }
+        .neon-headline {
+            font-size: clamp(1.4rem, 4.5vw, 3.2rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff8ec4, #ffb0d6, #ff6bb5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px #ff3b9f, 0 0 60px #ff3b9f55;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            line-height: 1.2;
+        }
+        .birthday-message {
+            color: rgba(255, 235, 245, 0.9);
+            font-size: clamp(0.9rem, 2.2vw, 1.4rem);
+            font-weight: 300;
+            line-height: 1.7;
+            max-width: 380px;
+            margin: 4px auto 12px;
+            text-shadow: 0 0 20px rgba(255, 80, 180, 0.3);
+            padding: 0 4px;
+        }
+        .birthday-message span {
+            display: block;
+        }
+
+        /* kalp animasyonu */
+        .heart-beat {
+            margin-top: 8px;
+            font-size: clamp(3.2rem, 10vw, 6rem);
+            display: inline-block;
+            animation: heartbeat 1.3s infinite ease-in-out;
+            filter: drop-shadow(0 0 30px #ff3b9faa);
+            line-height: 1;
+            transform-origin: center;
+            touch-action: manipulation;
+        }
+        @keyframes heartbeat {
+            0% { transform: scale(0.9); }
+            15% { transform: scale(1.2); }
+            30% { transform: scale(0.95); }
+            45% { transform: scale(1.1); }
+            70% { transform: scale(1); }
+            100% { transform: scale(0.9); }
+        }
+
+        @keyframes neonPulse {
+            0% { text-shadow: 0 0 20px #ff3b9f, 0 0 40px #ff3b9f55; }
+            100% { text-shadow: 0 0 40px #ff6bb5, 0 0 80px #ff3b9faa, 0 0 120px #ff3b9f44; }
+        }
+
+        /* mobil iyileştirme */
+        @media (max-width: 480px) {
+            .glass-card { 
+                padding: 16px 12px; 
+                border-radius: 28px;
+                gap: 18px;
+            }
+            .entry-btn { 
+                padding: 14px 32px; 
+                letter-spacing: 3px;
+                font-size: 1.6rem;
+            }
+            .entry-sub {
+                font-size: 0.95rem;
+                padding: 6px 16px;
+                margin-bottom: 24px;
+            }
+            .birthday-message {
+                font-size: 0.85rem;
+                line-height: 1.6;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .photo { max-width: 130px; }
+            .glass-card { padding: 12px 8px; gap: 14px; }
+            .neon-headline { font-size: 1.2rem; }
+        }
+
+        /* ekstra parıltı noktaları */
+        .glow-dot {
+            position: fixed;
+            border-radius: 50%;
+            background: radial-gradient(circle, #ff80b0, transparent 70%);
+            filter: blur(2px);
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.25;
+            width: 180px;
+            height: 180px;
+            animation: floatGlow 14s infinite alternate ease-in-out;
+        }
+        .glow-dot:nth-child(1) { top: 5%; left: 2%; }
+        .glow-dot:nth-child(2) { bottom: 8%; right: 3%; width: 240px; height: 240px; opacity: 0.15; }
+        @keyframes floatGlow {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(40px, -30px) scale(1.3); }
+        }
+    </style>
+</head>
+<body>
+    <!-- arka plan yıldızları -->
+    <div id="starfield"></div>
+
+    <!-- yumuşak parıltı noktaları -->
+    <div class="glow-dot"></div>
+    <div class="glow-dot"></div>
+
+    <!-- GİRİŞ EKRANI -->
+    <div id="entry-screen">
+        <div class="entry-title">❤️ Happy Birthday ❤️</div>
+        <div class="entry-sub">Elif için küçük bir sürpriz hazırlandı.</div>
+        <button class="entry-btn" id="enterBtn">ENTER</button>
+    </div>
+
+    <!-- ANA SAYFA -->
+    <div id="main-screen">
+        <div class="glass-card">
+            <!-- sol fotoğraf -->
+            <div class="photo-wrapper">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Ccircle cx='150' cy='150' r='140' fill='%23ff69b4' opacity='0.3'/%3E%3Ccircle cx='150' cy='130' r='45' fill='%23ffb6c1' opacity='0.5'/%3E%3Ccircle cx='110' cy='110' r='12' fill='white' opacity='0.4'/%3E%3Ccircle cx='190' cy='110' r='12' fill='white' opacity='0.4'/%3E%3Cellipse cx='120' cy='165' rx='20' ry='12' fill='%23ff1493' opacity='0.3'/%3E%3Cellipse cx='180' cy='165' rx='20' ry='12' fill='%23ff1493' opacity='0.3'/%3E%3Cpath d='M110 185 Q150 220 190 185' stroke='%23ff1493' stroke-width='4' fill='none' opacity='0.4'/%3E%3Ctext x='150' y='260' text-anchor='middle' font-size='24' fill='white' opacity='0.6' font-family='Arial'%3E🌸 sol.jpg%3C/text%3E%3C/svg%3E"
+                     alt="Elif sol" class="photo" id="leftPhoto" loading="lazy">
+            </div>
+
+            <!-- orta bölüm -->
+            <div class="center-content">
+                <div class="neon-headline">❤️ İyi ki Doğdun Elif'im ❤️</div>
+                <div class="birthday-message">
+                    <span>İyi ki doğdun Elif'im.</span>
+                    <span>İyi ki varsın.</span>
+                    <span>Yeni yaşın kutlu olsun.</span>
+                    <span>Gülüşün hiç eksik olmasın.</span>
+                    <span>Nice güzel yaşlara... 🎂✨</span>
+                </div>
+                <div class="heart-beat">❤️</div>
+            </div>
+
+            <!-- sağ fotoğraf -->
+            <div class="photo-wrapper">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Ccircle cx='150' cy='150' r='140' fill='%23ff69b4' opacity='0.3'/%3E%3Ccircle cx='150' cy='130' r='45' fill='%23ffb6c1' opacity='0.5'/%3E%3Ccircle cx='110' cy='110' r='12' fill='white' opacity='0.4'/%3E%3Ccircle cx='190' cy='110' r='12' fill='white' opacity='0.4'/%3E%3Cellipse cx='120' cy='165' rx='20' ry='12' fill='%23ff1493' opacity='0.3'/%3E%3Cellipse cx='180' cy='165' rx='20' ry='12' fill='%23ff1493' opacity='0.3'/%3E%3Cpath d='M110 185 Q150 220 190 185' stroke='%23ff1493' stroke-width='4' fill='none' opacity='0.4'/%3E%3Ctext x='150' y='260' text-anchor='middle' font-size='24' fill='white' opacity='0.6' font-family='Arial'%3E🌸 sag.jpg%3C/text%3E%3C/svg%3E"
+                     alt="Elif sağ" class="photo" id="rightPhoto" loading="lazy">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // YILDIZLARI oluştur
+            const starfield = document.getElementById('starfield');
+            const starCount = 140;
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = Math.random() * 4 + 1.5;
+                const top = Math.random() * 100;
+                const left = Math.random() * 100;
+                const duration = Math.random() * 5 + 3;
+                star.style.setProperty('--size', size + 'px');
+                star.style.setProperty('--top', top + '%');
+                star.style.setProperty('--left', left + '%');
+                star.style.setProperty('--duration', duration + 's');
+                star.style.animationDelay = Math.random() * 4 + 's';
+                starfield.appendChild(star);
+            }
+
+            // ELEMENTLER
+            const entryScreen = document.getElementById('entry-screen');
+            const mainScreen = document.getElementById('main-screen');
+            const enterBtn = document.getElementById('enterBtn');
+
+            // GEÇİŞ FONKSİYONU
+            function transitionToMain() {
+                // Giriş ekranını fade out yap
+                entryScreen.classList.add('fade-out');
+                
+                // Ana sayfayı fade in yap
+                setTimeout(() => {
+                    mainScreen.classList.add('fade-in');
+                }, 50);
+                
+                // Butonu devre dışı bırak
+                enterBtn.disabled = true;
+                enterBtn.style.opacity = '0.5';
+                enterBtn.style.cursor = 'default';
+            }
+
+            // BUTON TIKLAMA
+            enterBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                transitionToMain();
+            });
+
+            // TOUCH EVENT (mobil için ekstra)
+            enterBtn.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                transitionToMain();
+            }, { passive: false });
+
+            // KEYBOARD ENTER
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !entryScreen.classList.contains('fade-out')) {
+                    e.preventDefault();
+                    transitionToMain();
+                }
+            });
+
+            // SAYFA YÜKLENDİĞİNDE
+            window.addEventListener('load', function() {
+                entryScreen.style.opacity = '1';
+                entryScreen.classList.remove('fade-out');
+                mainScreen.classList.remove('fade-in');
+                enterBtn.disabled = false;
+                enterBtn.style.opacity = '1';
+                enterBtn.style.cursor = 'pointer';
+            });
+
+            // FOTOĞRAF YÜKLEME HATALARI
+            const leftImg = document.getElementById('leftPhoto');
+            const rightImg = document.getElementById('rightPhoto');
+
+            console.log('🎂 Elif doğum günü sitesi hazır!');
+            console.log('📸 Gerçek fotoğrafları eklemek için:');
+            console.log('1. sol.jpg ve sag.jpg dosyalarını aynı klasöre koyun');
+            console.log('2. JavaScript kısmındaki yorum satırlarını kaldırın:');
+            console.log('   leftImg.src = "sol.jpg";');
+            console.log('   rightImg.src = "sag.jpg";');
+        })();
+    </script>
+</body>
+</html>
