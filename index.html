@@ -343,22 +343,26 @@
             100% { opacity: 1; }
         }
 
-        /* HATA MESAJI */
-        .music-error {
+        /* MÜZİK YÜKLEME DURUMU */
+        .music-status {
             position: fixed;
             bottom: 100px;
             right: 30px;
             z-index: 51;
-            background: rgba(255, 0, 0, 0.2);
+            background: rgba(255, 20, 120, 0.15);
             backdrop-filter: blur(10px);
-            border: 1px solid #ff3b9f;
+            border: 1px solid rgba(255, 20, 120, 0.3);
             border-radius: 12px;
-            padding: 10px 16px;
-            color: #ff69b4;
-            font-size: 12px;
+            padding: 8px 14px;
+            color: rgba(255, 200, 230, 0.7);
+            font-size: 11px;
             display: none;
-            max-width: 200px;
+            max-width: 180px;
             text-align: center;
+            font-family: monospace;
+        }
+        .music-status.show {
+            display: block;
         }
     </style>
 </head>
@@ -401,13 +405,12 @@
     </div>
 
     <!-- MÜZİK KONTROL BUTONU -->
-    <div class="music-control" id="musicControl">🔇</div>
-    <div class="music-error" id="musicError">⚠️ Müzik yüklenemedi</div>
+    <div class="music-control" id="musicControl">🎵</div>
+    <div class="music-status" id="musicStatus">🎵 Yükleniyor...</div>
 
-    <!-- SES DOSYASI (MP3 ve OGG) -->
+    <!-- SES DOSYASI -->
     <audio id="bgMusic" loop preload="auto">
         <source src="Tudanya-Canimdan-Can-Iste.mp3" type="audio/mpeg">
-        <source src="Tudanya-Canimdan-Can-Iste.ogg" type="audio/ogg">
         <source src="canimdancaniste.mp3" type="audio/mpeg">
         <source src="muzik.mp3" type="audio/mpeg">
     </audio>
@@ -453,35 +456,54 @@
                 entryScreen.style.display = 'flex';
             });
 
-            // MÜZİK KONTROL - GELİŞMİŞ SİSTEM
+            // ============ MÜZİK SİSTEMİ ============
             const musicControl = document.getElementById('musicControl');
             const bgMusic = document.getElementById('bgMusic');
-            const musicError = document.getElementById('musicError');
+            const musicStatus = document.getElementById('musicStatus');
             let isMusicPlaying = false;
             let musicStarted = false;
+            let startTime = 10; // 10. saniyeden başlat (istediğiniz saniyeyi ayarlayın)
 
             function startMusic() {
                 if (musicStarted) return;
+                
+                musicStatus.textContent = '⏳ Müzik başlatılıyor...';
+                musicStatus.classList.add('show');
+                
+                bgMusic.currentTime = startTime; // 10. saniyeden başlat
                 
                 bgMusic.play().then(function() {
                     musicControl.textContent = '🎵';
                     isMusicPlaying = true;
                     musicStarted = true;
-                    musicError.style.display = 'none';
-                    console.log('✅ Canımdan Can İste çalıyor!');
+                    musicStatus.textContent = '✅ Canımdan Can İste çalıyor';
+                    musicStatus.style.borderColor = '#00ff88';
+                    musicStatus.style.color = '#00ff88';
+                    console.log('✅ Canımdan Can İste ' + startTime + '. saniyeden çalıyor!');
+                    
+                    setTimeout(function() {
+                        musicStatus.classList.remove('show');
+                    }, 3000);
                 }).catch(function(error) {
                     console.log('❌ Müzik hatası:', error);
-                    musicError.style.display = 'block';
-                    musicError.textContent = '⚠️ Müzik çalmıyor. Butona tıklayın!';
+                    musicStatus.textContent = '⚠️ Butona tıklayın';
+                    musicStatus.style.borderColor = '#ff3b9f';
+                    musicStatus.style.color = '#ff69b4';
                     
                     // Kullanıcı etkileşimi ile tekrar dene
                     document.addEventListener('click', function tryAgain() {
+                        bgMusic.currentTime = startTime;
                         bgMusic.play().then(function() {
                             musicControl.textContent = '🎵';
                             isMusicPlaying = true;
                             musicStarted = true;
-                            musicError.style.display = 'none';
-                            console.log('✅ Kullanıcı tıklamasıyla müzik başladı!');
+                            musicStatus.textContent = '✅ Müzik başladı!';
+                            musicStatus.style.borderColor = '#00ff88';
+                            musicStatus.style.color = '#00ff88';
+                            console.log('✅ Kullanıcı ile müzik başladı!');
+                            setTimeout(function() {
+                                musicStatus.classList.remove('show');
+                            }, 3000);
                         }).catch(function() {});
                         document.removeEventListener('click', tryAgain);
                     }, { once: true });
@@ -493,9 +515,29 @@
                     bgMusic.pause();
                     musicControl.textContent = '🔇';
                     isMusicPlaying = false;
+                    musicStatus.textContent = '⏸️ Durduruldu';
+                    musicStatus.classList.add('show');
                     console.log('🔇 Müzik durduruldu');
+                    setTimeout(function() {
+                        musicStatus.classList.remove('show');
+                    }, 2000);
                 } else {
-                    startMusic();
+                    // Kaldığı yerden devam et
+                    if (bgMusic.currentTime === 0) {
+                        bgMusic.currentTime = startTime;
+                    }
+                    bgMusic.play().then(function() {
+                        musicControl.textContent = '🎵';
+                        isMusicPlaying = true;
+                        musicStatus.textContent = '▶️ Devam ediyor';
+                        musicStatus.classList.add('show');
+                        console.log('▶️ Müzik devam ediyor');
+                        setTimeout(function() {
+                            musicStatus.classList.remove('show');
+                        }, 2000);
+                    }).catch(function(error) {
+                        console.log('❌ Hata:', error);
+                    });
                 }
             }
 
@@ -528,6 +570,12 @@
                 }
             }, { once: true });
 
+            // Müzik bittiğinde tekrar başlat (loop için)
+            bgMusic.addEventListener('ended', function() {
+                bgMusic.currentTime = startTime;
+                bgMusic.play().catch(function() {});
+            });
+
             // Fotoğraf kontrol
             const leftImg = document.getElementById('leftPhoto');
             const rightImg = document.getElementById('rightPhoto');
@@ -547,6 +595,7 @@
 
             console.log('🎂 Elif doğum günü sitesi hazır!');
             console.log('🎵 Şarkı: Canımdan Can İste - Tudanya');
+            console.log('⏱️ ' + startTime + '. saniyeden başlayacak');
             console.log('📁 MP3 dosyası: Tudanya-Canimdan-Can-Iste.mp3');
         })();
     </script>
