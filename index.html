@@ -24,7 +24,6 @@
             touch-action: manipulation;
         }
 
-        /* yıldız & parıltı katmanı */
         #starfield {
             position: fixed;
             inset: 0;
@@ -49,7 +48,6 @@
             100% { opacity: 0.9; transform: scale(1.3); }
         }
 
-        /* giriş ekranı - sadece kısa bir gösterim için */
         #entry-screen {
             position: fixed;
             inset: 0;
@@ -110,7 +108,6 @@
             100% { content: '...'; }
         }
 
-        /* ana sayfa */
         #main-screen {
             position: relative;
             z-index: 10;
@@ -150,7 +147,6 @@
             }
         }
 
-        /* fotoğraf stil */
         .photo-wrapper {
             display: flex;
             justify-content: center;
@@ -167,6 +163,7 @@
             border: 2px solid rgba(255, 180, 220, 0.4);
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
+            background: #2a0f30;
         }
         .photo:active {
             transform: scale(0.96);
@@ -178,7 +175,22 @@
             .photo { max-width: 160px; }
         }
 
-        /* orta bölüm */
+        .photo-error {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ff69b4;
+            font-size: 14px;
+            text-align: center;
+            background: rgba(255, 20, 120, 0.1);
+            border: 2px dashed #ff3b9f;
+            padding: 20px;
+            width: 100%;
+            max-width: 280px;
+            aspect-ratio: 1/1;
+            border-radius: 50%;
+        }
+
         .center-content {
             display: flex;
             flex-direction: column;
@@ -211,7 +223,6 @@
             display: block;
         }
 
-        /* kalp animasyonu */
         .heart-beat {
             margin-top: 8px;
             font-size: clamp(3.2rem, 10vw, 6rem);
@@ -236,7 +247,6 @@
             100% { text-shadow: 0 0 40px #ff6bb5, 0 0 80px #ff3b9faa, 0 0 120px #ff3b9f44; }
         }
 
-        /* mobil iyileştirme */
         @media (max-width: 480px) {
             .glass-card { 
                 padding: 16px 12px; 
@@ -260,7 +270,6 @@
             .neon-headline { font-size: 1.2rem; }
         }
 
-        /* ekstra parıltı noktaları */
         .glow-dot {
             position: fixed;
             border-radius: 50%;
@@ -282,29 +291,23 @@
     </style>
 </head>
 <body>
-    <!-- arka plan yıldızları -->
     <div id="starfield"></div>
-
-    <!-- yumuşak parıltı noktaları -->
     <div class="glow-dot"></div>
     <div class="glow-dot"></div>
 
-    <!-- GİRİŞ EKRANI (kısa süreliğine gösterilir) -->
     <div id="entry-screen">
         <div class="entry-title">❤️ Happy Birthday ❤️</div>
         <div class="entry-sub">Elif için küçük bir sürpriz hazırlandı.</div>
         <div class="loading-dots">Yükleniyor</div>
     </div>
 
-    <!-- ANA SAYFA -->
     <div id="main-screen">
         <div class="glass-card">
-            <!-- sol fotoğraf -->
             <div class="photo-wrapper">
-                <img src="sol.jpg" alt="Elif sol" class="photo" id="leftPhoto" loading="lazy">
+                <img src="sol.jpg" alt="Elif sol" class="photo" id="leftPhoto" loading="lazy"
+                     onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\'photo-error\'>❌ sol.jpg<br>bulunamadı</div>';">
             </div>
 
-            <!-- orta bölüm -->
             <div class="center-content">
                 <div class="neon-headline">❤️ İyi ki Doğdun Elif'im ❤️</div>
                 <div class="birthday-message">
@@ -317,16 +320,15 @@
                 <div class="heart-beat">❤️</div>
             </div>
 
-            <!-- sağ fotoğraf -->
             <div class="photo-wrapper">
-                <img src="sag.jpg" alt="Elif sağ" class="photo" id="rightPhoto" loading="lazy">
+                <img src="sag.jpg" alt="Elif sağ" class="photo" id="rightPhoto" loading="lazy"
+                     onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\'photo-error\'>❌ sag.jpg<br>bulunamadı</div>';">
             </div>
         </div>
     </div>
 
     <script>
         (function() {
-            // YILDIZLARI oluştur
             const starfield = document.getElementById('starfield');
             const starCount = 140;
             for (let i = 0; i < starCount; i++) {
@@ -344,51 +346,45 @@
                 starfield.appendChild(star);
             }
 
-            // ELEMENTLER
             const entryScreen = document.getElementById('entry-screen');
             const mainScreen = document.getElementById('main-screen');
 
-            // 1.5 saniye sonra otomatik geçiş
             setTimeout(function() {
-                // Giriş ekranını fade out yap
                 entryScreen.classList.add('fade-out');
-                
-                // Ana sayfayı fade in yap
                 setTimeout(function() {
                     mainScreen.classList.add('fade-in');
                 }, 100);
-                
-                // Giriş ekranını tamamen gizle (fade out tamamlandıktan sonra)
                 setTimeout(function() {
                     entryScreen.style.display = 'none';
                 }, 1000);
             }, 1500);
 
-            // SAYFA YÜKLENDİĞİNDE
             window.addEventListener('load', function() {
-                // Başlangıç durumu
                 entryScreen.style.opacity = '1';
                 entryScreen.classList.remove('fade-out');
                 mainScreen.classList.remove('fade-in');
                 entryScreen.style.display = 'flex';
             });
 
-            // FOTOĞRAF YÜKLEME HATALARI
             const leftImg = document.getElementById('leftPhoto');
             const rightImg = document.getElementById('rightPhoto');
 
-            // Fotoğraflar yüklenmezse hata mesajı
-            leftImg.onerror = function() {
-                console.log('⚠️ sol.jpg yüklenemedi! Dosyanın var olduğundan emin olun.');
-                this.alt = 'Fotoğraf yüklenemedi';
-            };
-            rightImg.onerror = function() {
-                console.log('⚠️ sag.jpg yüklenemedi! Dosyanın var olduğundan emin olun.');
-                this.alt = 'Fotoğraf yüklenemedi';
-            };
-
             console.log('🎂 Elif doğum günü sitesi hazır!');
-            console.log('📸 sol.jpg ve sag.jpg fotoğrafları yüklendi.');
+            console.log('📸 Fotoğraflar kontrol ediliyor...');
+            
+            // Fotoğrafların yüklenip yüklenmediğini kontrol et
+            setTimeout(function() {
+                if (leftImg.naturalWidth === 0) {
+                    console.log('❌ sol.jpg yüklenemedi! Dosyayı kontrol edin.');
+                } else {
+                    console.log('✅ sol.jpg yüklendi!');
+                }
+                if (rightImg.naturalWidth === 0) {
+                    console.log('❌ sag.jpg yüklenemedi! Dosyayı kontrol edin.');
+                } else {
+                    console.log('✅ sag.jpg yüklendi!');
+                }
+            }, 2000);
         })();
     </script>
 </body>
